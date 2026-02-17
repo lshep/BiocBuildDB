@@ -100,3 +100,11 @@ jobs:
           COPY (SELECT * FROM read_csv_auto('s3://bioc-builddb-mirror/buildResults/*info.csv.gz')) TO 's3://bioc-builddb-mirror/parquet/info.parquet' (FORMAT PARQUET, compression zstd);
           COPY (SELECT * FROM read_csv_auto('s3://bioc-builddb-mirror/buildResults/*propagation_status.csv.gz')) TO 's3://bioc-builddb-mirror/parquet/propagation_status.parquet' (FORMAT PARQUET, compression zstd);
           COPY (SELECT * FROM read_csv_auto('s3://bioc-builddb-mirror/buildResults/*build_summary.csv.gz')) TO 's3://bioc-builddb-mirror/parquet/build_summary.parquet' (FORMAT PARQUET, compression zstd);"
+
+      - name: Copy parquet to OSN
+        run: |
+          mkdir parquet
+          curl -o parquet/info.parquet https://s3.amazonaws.com/bioc-builddb-mirror/parquet/info.parquet
+          curl -o parquet/propagation_status.parquet https://s3.amazonaws.com/bioc-builddb-mirror/parquet/propagation_status.parquet
+          curl -o parquet/build_summary.parquet https://s3.amazonaws.com/bioc-builddb-mirror/parquet/build_summary.parquet
+          rclone --config rclone.conf sync parquet bioc-osn:bir190004-bucket01/BiocBuildReports/
